@@ -32,7 +32,7 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        $user = User::with('posts')->findOrFail($id);
+        $user = User::with('posts')->findOrFail(decrypt($id));
         return ApiResponses::succes("Usuario Encontrado",200,new UserResource($user));
 
     }

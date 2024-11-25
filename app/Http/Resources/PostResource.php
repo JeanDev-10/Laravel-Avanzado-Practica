@@ -15,7 +15,7 @@ class PostResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
+            'id' => encrypt($this->id),
             'title' => $this->title,
             'content' => $this->content,
             'user' => new UserResource($this->whenLoaded('user')),

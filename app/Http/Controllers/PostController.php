@@ -30,9 +30,9 @@ class PostController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Post $post)
+    public function show(String $id)
     {
-        $post = Post::with('user')->findOrFail($post->id);
+        $post = Post::with('user')->findOrFail(decrypt($id));
         return ApiResponses::succes("Post Encontrado",200,new PostResource($post));
     }
 
