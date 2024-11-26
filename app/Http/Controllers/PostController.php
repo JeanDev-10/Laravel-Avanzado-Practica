@@ -33,6 +33,7 @@ class PostController extends Controller
     public function show(Post $post)
     {
         $post = Post::with('user')->findOrFail($post->id);
+        $this->authorize('view', $post);
         return ApiResponses::succes("Post Encontrado",200,new PostResource($post));
     }
 
