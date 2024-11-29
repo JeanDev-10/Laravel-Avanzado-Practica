@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\DTOs\UserDTO;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreUserRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Responses\ApiResponses;
 use App\Models\User;
@@ -22,9 +24,17 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        //
+        $userDTO = $request->toDTO();
+
+        $user = User::create([
+            'name' => $userDTO->name,
+            'email' => $userDTO->email,
+            'password' => $userDTO->password,
+        ]);
+
+        return ApiResponses::succes("Se ha creado correctamente!",201, new UserResource($user));
     }
 
     /**
