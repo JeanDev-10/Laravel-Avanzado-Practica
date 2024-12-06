@@ -76,12 +76,12 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         try {
-            DB::beginTransaction();
             $request->validate([
                 'name' => 'required',
                 'email' => 'required|email|unique:users',
                 'password' => 'required|confirmed'
             ]);
+            DB::beginTransaction();
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -106,41 +106,44 @@ class AuthController extends Controller
 
     public function sendVerificationEmail(Request $request): JsonResponse
     {
-        $user = Auth::guard("sanctum")->user();
 
-        if ($user->hasVerifiedEmail()) {
-            return response()->json(['message' => 'El correo ya fue verificado.'], 200);
+        if ($request->user()->hasVerifiedEmail()) {
+            return response()->json(['message' => 'El correo ya fue verificado.'], 301);
         }
 
-        $user->sendEmailVerificationNotification();
+        $request->user()->sendEmailVerificationNotification();
 
         return response()->json(['message' => 'Correo de verificación enviado.'], 200);
     }
     public function verifyEmail(EmailVerificationRequest $request): JsonResponse
     {
-        $user = Auth::guard("sanctum")->user();
 
-        if ($user->hasVerifiedEmail()) {
+        if ($request->user()->hasVerifiedEmail()) {
             return response()->json(['message' => 'El correo ya fue verificado.'], 200);
         }
 
-        if ($user->markEmailAsVerified()) {
-            event(new Verified($user));
+        if ($request->user()->markEmailAsVerified()) {
+            event(new Verified($request->user()));
         }
 
         return response()->json(['message' => 'Correo electrónico verificado exitosamente.'], 200);
     }
     public function forgot_password(Request $request)
     {
-        $request->validate(['email' => 'required|email']);
+        try {
 
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+            $request->validate(['email' => 'required|email']);
 
-        return $status === Password::RESET_LINK_SENT
-            ? response()->json(['message' => 'Enlace de restablecimiento enviado.'], 200)
-            : response()->json(['message' => 'Error al enviar el enlace de restablecimiento.'], 400);
+            $status = Password::sendResetLink(
+                $request->only('email')
+            );
+
+            return $status === Password::RESET_LINK_SENT
+                ? response()->json(['message' => 'Enlace de restablecimiento enviado.'], 200)
+                : response()->json(['message' => 'Error al enviar el enlace de restablecimiento.'], 400);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage()], 500);
+        }
     }
     public function reset_password(Request $request)
     {
@@ -149,16 +152,13 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required|min:8|confirmed',
         ]);
-
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function (User $user, string $password) {
                 $user->forceFill([
                     'password' => Hash::make($password)
                 ])->setRememberToken(Str::random(60));
-
                 $user->save();
-
                 event(new PasswordReset($user));
             }
         );

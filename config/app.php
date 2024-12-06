@@ -27,7 +27,7 @@ return [
     */
 
     'env' => env('APP_ENV', 'production'),
-
+    'app.frontend_url' => env('APP_FRONTEND_URL', 'http://localhost:4200/'),
     /*
     |--------------------------------------------------------------------------
     | Application Debug Mode
