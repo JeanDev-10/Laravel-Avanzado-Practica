@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\UserLoginEvent;
+use App\Events\UserRegisteredEvent;
 use App\Http\Controllers\Controller;
 use App\Mail\EmailConfirmationMail;
 use App\Models\User;
@@ -31,6 +33,8 @@ class AuthController extends Controller
             if (Hash::check($request->password, $user->password)) {
                 //creamos el token
                 $token = $user->createToken("auth_token")->plainTextToken;
+
+                event(new UserLoginEvent($user));
                 //si está todo ok
                 return response()->json([
                     "status" => 1,
@@ -85,7 +89,8 @@ class AuthController extends Controller
                 'password' => Hash::make($request->password) //Encriptamos la contraseña al registrarlo
             ]);
 
-            event(new Registered($user));
+            event(new UserRegisteredEvent($user));
+
             DB::commit();
             return response()->json([
                 "status" => 1,
@@ -99,32 +104,5 @@ class AuthController extends Controller
                 "error" => $th->getMessage(),
             ], 500);
         }
-    }
-
-    public function sendVerificationEmail(Request $request): JsonResponse
-    {
-        $user = Auth::guard("sanctum")->user();
-
-        if ($user->hasVerifiedEmail()) {
-            return response()->json(['message' => 'El correo ya fue verificado.'], 200);
-        }
-
-        $user->sendEmailVerificationNotification();
-
-        return response()->json(['message' => 'Correo de verificación enviado.'], 200);
-    }
-    public function verifyEmail(EmailVerificationRequest $request): JsonResponse
-    {
-        $user = Auth::guard("sanctum")->user();
-
-        if ($user->hasVerifiedEmail()) {
-            return response()->json(['message' => 'El correo ya fue verificado.'], 200);
-        }
-
-        if ($user->markEmailAsVerified()) {
-            event(new Verified($user));
-        }
-
-        return response()->json(['message' => 'Correo electrónico verificado exitosamente.'], 200);
     }
 }

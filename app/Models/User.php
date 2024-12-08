@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable,HasApiTokens;
@@ -51,14 +51,5 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
-    public function sendEmailVerificationNotification()
-{
-    $url = URL::temporarySignedRoute(
-        'verification.verify',
-        now()->addMinutes(60),
-        ['id' => $this->id, 'hash' => sha1($this->email)]
-    );
 
-    Mail::to($this->email)->send(new EmailConfirmationMail($this->name, $url));
-}
 }
