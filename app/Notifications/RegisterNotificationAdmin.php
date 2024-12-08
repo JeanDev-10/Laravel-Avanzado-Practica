@@ -27,7 +27,7 @@ class RegisterNotificationAdmin extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail','database'];
     }
 
     /**
@@ -53,6 +53,15 @@ class RegisterNotificationAdmin extends Notification
     {
         return [
             //
+        ];
+    }
+
+    public function toDatabase($notifiable)
+    {
+        return [
+            'message' => 'Un nuevo usuario se ha registrado.',
+            'user_name' => $this->userRegistered->name,
+            'user_email' => $this->userRegistered->email,
         ];
     }
 }

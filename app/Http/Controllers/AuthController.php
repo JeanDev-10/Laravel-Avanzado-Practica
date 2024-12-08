@@ -105,4 +105,29 @@ class AuthController extends Controller
             ], 500);
         }
     }
+
+    // Obtener notificaciones del usuario autenticado
+    public function notifications(Request $request)
+    {
+        $admin = User::findOrFail(1);
+        $notifications = $admin->notifications;
+
+        return response()->json([
+            'unread' => $notifications->whereNull('read_at')->count(),
+            'notifications' => $notifications,
+        ]);
+    }
+
+    // Marcar una notificación como leída
+    public function markAsRead(Request $request, $id)
+    {
+        $admin = User::findOrFail(1);
+
+        $notification = $admin->notifications()->findOrFail($id);
+        if ($notification->read_at == null) {
+            $notification->markAsRead();
+            return response()->json(['message' => 'Notificación marcada como leída']);
+        }
+        return response()->json(['message' => 'Notificación ya ha sido leída'], 500);
+    }
 }
