@@ -83,14 +83,11 @@ class AuthController extends Controller
                 'email' => 'required|email|unique:users',
                 'password' => 'required|confirmed'
             ]);
-            $user = User::create([
+            User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password) //Encriptamos la contraseña al registrarlo
             ]);
-
-            event(new UserRegisteredEvent($user));
-
             DB::commit();
             return response()->json([
                 "status" => 1,
@@ -106,28 +103,5 @@ class AuthController extends Controller
         }
     }
 
-    // Obtener notificaciones del usuario autenticado
-    public function notifications(Request $request)
-    {
-        $admin = User::findOrFail(1);
-        $notifications = $admin->notifications;
 
-        return response()->json([
-            'unread' => $notifications->whereNull('read_at')->count(),
-            'notifications' => $notifications,
-        ]);
-    }
-
-    // Marcar una notificación como leída
-    public function markAsRead(Request $request, $id)
-    {
-        $admin = User::findOrFail(1);
-
-        $notification = $admin->notifications()->findOrFail($id);
-        if ($notification->read_at == null) {
-            $notification->markAsRead();
-            return response()->json(['message' => 'Notificación marcada como leída']);
-        }
-        return response()->json(['message' => 'Notificación ya ha sido leída'], 500);
-    }
 }
