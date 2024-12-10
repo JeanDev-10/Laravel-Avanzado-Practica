@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Events\UserRegisteredEvent;
+use App\Jobs\OptimizeImageJob;
 use App\Models\User;
 use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 use Illuminate\Support\Facades\Log;
@@ -14,8 +15,9 @@ class UserObserver implements ShouldHandleEventsAfterCommit
      */
     public function created(User $user): void
     {
-        if(!$user->name=="admin"){
+        if(!($user->name=="admin")){
             Log::info("usuario registrado desde observer " . $user->name);
+            dispatch(new OptimizeImageJob($user));
             event(new UserRegisteredEvent($user));
         }
     }
