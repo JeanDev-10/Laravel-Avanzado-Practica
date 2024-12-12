@@ -15,11 +15,11 @@ class UserObserver implements ShouldHandleEventsAfterCommit
      */
     public function created(User $user): void
     {
-        if(!($user->name=="admin")){
+        /* if(!($user->name=="admin")){
             Log::info("usuario registrado desde observer " . $user->name);
             dispatch(new OptimizeImageJob($user));
             event(new UserRegisteredEvent($user));
-        }
+        } */
     }
 
     /**
