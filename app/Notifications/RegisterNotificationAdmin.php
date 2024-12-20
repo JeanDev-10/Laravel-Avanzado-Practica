@@ -4,11 +4,13 @@ namespace App\Notifications;
 
 use App\Models\User;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class RegisterNotificationAdmin extends Notification implements ShouldQueue
+class RegisterNotificationAdmin extends Notification implements ShouldBroadcast
 {
     use Queueable;
 
@@ -27,7 +29,7 @@ class RegisterNotificationAdmin extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail','database'];
+        return ['broadcast'];
     }
 
     /**
@@ -63,5 +65,18 @@ class RegisterNotificationAdmin extends Notification implements ShouldQueue
             'user_name' => $this->userRegistered->name,
             'user_email' => $this->userRegistered->email,
         ];
+    }
+
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage([
+            'message' => 'Un nuevo usuario se ha registrado.',
+            'user_name' => $this->userRegistered->name,
+            'user_email' => $this->userRegistered->email,
+        ]);
+    }
+    public function broadcastType(): string
+    {
+        return 'register.notification.admin';
     }
 }
