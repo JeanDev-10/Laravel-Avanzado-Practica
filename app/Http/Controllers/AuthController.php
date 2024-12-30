@@ -83,12 +83,14 @@ class AuthController extends Controller
                 'email' => 'required|email|unique:users',
                 'password' => 'required|confirmed'
             ]);
-            User::create([
+            $user=User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password) //Encriptamos la contraseña al registrarlo
             ]);
             DB::commit();
+            event(new UserRegisteredEvent($user));
+
             return response()->json([
                 "status" => 1,
                 "msg" => "¡Registro de usuario exitoso!",
