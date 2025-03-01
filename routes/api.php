@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LibroController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -18,5 +19,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('libros/{libro}', [LibroController::class, 'update'])->middleware('permission:update.libros');
     Route::delete('libros/{libro}', [LibroController::class, 'destroy'])->middleware('permission:destroy.libros');
 });
-
+Route::post('/login/google', [GoogleAuthController::class, 'loginWithGoogle']);
 Route::post('login', [UserController::class, 'login']);

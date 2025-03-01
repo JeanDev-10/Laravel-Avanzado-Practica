@@ -37,7 +37,6 @@ class UserSeeder extends Seeder
             "name"=>"jean",
             "email"=>"jean@example.com",
             "password"=>Hash::make("admin123"),
-            "email_verified_at"=>now(),
         ]);
 
         $admin_user->assignRole("admin");
@@ -47,7 +46,6 @@ class UserSeeder extends Seeder
             "name"=>"student 1",
             "email"=>"student1@example.com",
             "password"=>Hash::make("student123"),
-            "email_verified_at"=>now(),
         ]);
 
         $student_user->assignRole("student");

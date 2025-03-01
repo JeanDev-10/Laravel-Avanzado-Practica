@@ -23,6 +23,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'firebase_uid',
+        'registration_method',
+        'image'
     ];
 
     /**
